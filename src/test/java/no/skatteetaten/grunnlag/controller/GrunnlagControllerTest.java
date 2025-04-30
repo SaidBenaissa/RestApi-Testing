@@ -1,47 +1,38 @@
 package no.skatteetaten.grunnlag.controller;
 
-import no.skatteetaten.grunnlag.model.GrunnlagRequest;
-import no.skatteetaten.grunnlag.service.GrunnlagService;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class GrunnlagControllerTest {
 
-    @Mock
-    private GrunnlagService grunnlagService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    private GrunnlagController grunnlagController;
+    @Test
+    void testValidRequest() throws Exception {
+        String validJson = "{ \"innsender\": { \"navn\": \"Ole Olsen\", \"foedselsnummer\": \"26063643458\" }, \"oppgave\": [{ \"saldo\": 100, \"aksjeandel\": 50 }], \"oppgaveoppsummering\": { \"sumSaldo\": 100, \"sumAksjehandel\": 50 } }";
 
-    public GrunnlagControllerTest() {
-        MockitoAnnotations.openMocks(this);
+        mockMvc.perform(post("/grunnlag")
+                .contentType("application/json")
+                .content(validJson))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testBehandleGrunnlagValid() {
-        GrunnlagRequest request = new GrunnlagRequest();
-        when(grunnlagService.validerGrunnlag(request)).thenReturn(true);
+    void testInvalidRequest() throws Exception {
+        String invalidJson = "{ \"innsender\": { \"navn\": \"Ole Olsen\", \"foedselsnummer\": \"26063643458\" }, \"oppgave\": [{ \"saldo\": 100, \"aksjeandel\": 50 }], \"oppgaveoppsummering\": { \"sumSaldo\": 200, \"sumAksjehandel\": 100 } }";
 
-        ResponseEntity<String> response = grunnlagController.behandleGrunnlag(request);
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Gyldige data", response.getBody());
-    }
-
-    @Test
-    void testBehandleGrunnlagInvalid() {
-        GrunnlagRequest request = new GrunnlagRequest();
-        when(grunnlagService.validerGrunnlag(request)).thenReturn(false);
-
-        ResponseEntity<String> response = grunnlagController.behandleGrunnlag(request);
-
-        assertEquals(400, response.getStatusCodeValue());
-        assertEquals("Ugyldige data", response.getBody());
+        mockMvc.perform(post("/grunnlag")
+                .contentType("application/json")
+                .content(invalidJson))
+                .andExpect(status().isBadRequest());
     }
 }
