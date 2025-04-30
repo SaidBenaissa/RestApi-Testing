@@ -32,19 +32,26 @@ class GrunnlagRequestTest {
 
     @Test
     void testGrunnlagRequest() throws Exception {
-        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        String jsonContent;
+        try {
+            jsonContent = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("json/request.json").toURI())));
+        } catch (NullPointerException e) {
+            // Fallback to relative file system path if classpath lookup fails
+            jsonContent = new String(Files.readAllBytes(Paths.get("src/main/resources/json/request.json")));
+        }
+
         GrunnlagRequest request = new ObjectMapper().readValue(jsonContent, GrunnlagRequest.class);
 
         assertEquals("Ole Olsen", request.getInnsender().getNavn());
         assertEquals("26063643458", request.getInnsender().getFoedselsnummer());
-        // Assertion: Expecting 2 elements in the oppgave list
         assertEquals(2, request.getOppgave().size());
         assertEquals(100, request.getOppgave().get(0).getSaldo());
-        // Assertion: Expecting aksjeandel to be 200 for the first element
         assertEquals(200, request.getOppgave().get(0).getAksjeandel());
-        // Assertion: Expecting sumSaldo to be 210
         assertEquals(210, request.getOppgaveoppsummering().getSumSaldo());
-        // Assertion: Expecting sumAksjehandel to be 410
         assertEquals(410, request.getOppgaveoppsummering().getSumAksjehandel());
+    }
+
+    private String readJsonFile(String filePath) throws Exception {
+        return new String(Files.readAllBytes(Paths.get("src/main/resources/" + filePath)));
     }
 }

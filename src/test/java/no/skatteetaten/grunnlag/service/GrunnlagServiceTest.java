@@ -17,16 +17,20 @@ class GrunnlagServiceTest {
     private final GrunnlagService grunnlagService = new GrunnlagService();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private String readJsonFile(String filePath) throws Exception {
+        return new String(Files.readAllBytes(Paths.get("src/main/resources/" + filePath)));
+    }
+
     @Test
     void testValiderGrunnlagValid() throws Exception {
-        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        String jsonContent = readJsonFile("json/request.json");
         GrunnlagRequest request = objectMapper.readValue(jsonContent, GrunnlagRequest.class);
         assertTrue(grunnlagService.validerGrunnlag(request));
     }
 
     @Test
     void testValiderGrunnlagMalformed() throws Exception {
-        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/schema.json")));
+        String jsonContent = readJsonFile("json/schema.json");
         try {
             GrunnlagRequest request = objectMapper.readValue(jsonContent, GrunnlagRequest.class);
             assertFalse(grunnlagService.validerGrunnlag(request));

@@ -24,7 +24,7 @@ class GrunnlagControllerTest {
 
     @Test
     void testValidRequest() throws Exception {
-        String validJson = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        String validJson = readJsonFile("json/request.json");
 
         logger.info("Sending valid JSON payload: {}", validJson);
 
@@ -37,7 +37,7 @@ class GrunnlagControllerTest {
 
     @Test
     void testInvalidRequestMalformed() throws Exception {
-        String malformedJson = new String(Files.readAllBytes(Paths.get("src/test/resources/json/schema.json")));
+        String malformedJson = readJsonFile("json/schema.json");
 
         logger.info("Sending invalid JSON payload (schema): {}", malformedJson);
 
@@ -46,5 +46,9 @@ class GrunnlagControllerTest {
                 .content(malformedJson))
                 .andDo(result -> logger.info("Received response: {}", result.getResponse().getContentAsString()))
                 .andExpect(status().isBadRequest());
+    }
+
+    private String readJsonFile(String filePath) throws Exception {
+        return new String(Files.readAllBytes(Paths.get("src/main/resources/" + filePath)));
     }
 }

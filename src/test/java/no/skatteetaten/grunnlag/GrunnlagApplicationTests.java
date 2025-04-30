@@ -28,7 +28,7 @@ class GrunnlagApplicationTests {
 
     @Test
     void testGyldigGrunnlag() throws Exception {
-        String validJson = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        String validJson = readJsonFile("json/request.json");
         GrunnlagRequest foresporsel = new ObjectMapper().readValue(validJson, GrunnlagRequest.class);
 
         boolean erGyldig = grunnlagService.validerGrunnlag(foresporsel);
@@ -38,7 +38,7 @@ class GrunnlagApplicationTests {
     @Test
     void testUgyldigGrunnlagMalformed() {
         try {
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/schema.json")));
+            String jsonContent = readJsonFile("json/schema.json");
             GrunnlagRequest request = new ObjectMapper().readValue(jsonContent, GrunnlagRequest.class);
 
             boolean erGyldig = grunnlagService.validerGrunnlag(request);
@@ -50,7 +50,7 @@ class GrunnlagApplicationTests {
 
     @Test
     void testEndepunktOk() throws Exception {
-        String validJson = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        String validJson = readJsonFile("json/request.json");
 
         mockMvc.perform(post("/grunnlag")
                 .contentType("application/json")
@@ -60,11 +60,15 @@ class GrunnlagApplicationTests {
 
     @Test
     void testEndepunktBadRequestMalformed() throws Exception {
-        String malformedJson = new String(Files.readAllBytes(Paths.get("src/test/resources/json/schema.json")));
+        String malformedJson = readJsonFile("json/schema.json");
 
         mockMvc.perform(post("/grunnlag")
                 .contentType("application/json")
                 .content(malformedJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    private String readJsonFile(String filePath) throws Exception {
+        return new String(Files.readAllBytes(Paths.get("src/main/resources/" + filePath)));
     }
 }
