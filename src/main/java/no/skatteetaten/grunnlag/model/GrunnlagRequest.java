@@ -1,8 +1,10 @@
 package no.skatteetaten.grunnlag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GrunnlagRequest {
     @NotNull
     private Innsender innsender;
@@ -10,32 +12,50 @@ public class GrunnlagRequest {
     private List<Oppgave> oppgave;
     @NotNull
     private OppgaveOppsummering oppgaveoppsummering;
+    private String $schema;
+
     public Innsender getInnsender() {
         return innsender;
     }
+
     public List<Oppgave> getOppgave() {
         return oppgave;
     }
+
     public OppgaveOppsummering getOppgaveoppsummering() {
         return oppgaveoppsummering;
     }
+
+    public String get$schema() {
+        return $schema;
+    }
+
+    public void set$schema(String $schema) {
+        this.$schema = $schema;
+    }
+
     public void setOppgave(List<Oppgave> oppgave) {
         this.oppgave = oppgave;
     }
+
     public void setOppgaveoppsummering(OppgaveOppsummering oppgaveoppsummering) {
         this.oppgaveoppsummering = oppgaveoppsummering;
     }
+
     public void setInnsender(Innsender innsender) {
         this.innsender = innsender;
     }
+
     public static class Innsender {
         @NotNull
         private String navn;
         @NotNull
         private String foedselsnummer;
+
         public String getNavn() {
             return navn;
         }
+
         public String getFoedselsnummer() {
             return foedselsnummer;
         }
@@ -48,38 +68,48 @@ public class GrunnlagRequest {
             this.foedselsnummer = foedselsnummer;
         }
     }
+
     public static class Oppgave {
         @NotNull
         private Integer saldo;
         @NotNull
         private Integer aksjeandel;
+
         public Integer getSaldo() {
             return saldo;
         }
+
         public Integer getAksjeandel() {
             return aksjeandel;
         }
+
         public void setAksjeandel(int aksjeandel) {
             this.aksjeandel = aksjeandel;
         }
+
         public void setSaldo(int saldo) {
             this.saldo = saldo;
         }
     }
+
     public static class OppgaveOppsummering {
         @NotNull
         private Integer sumSaldo;
         @NotNull
         private Integer sumAksjehandel;
+
         public Integer getSumSaldo() {
             return sumSaldo;
         }
+
         public Integer getSumAksjehandel() {
             return sumAksjehandel;
         }
+
         public void setSumSaldo(int sumSaldo) {
             this.sumSaldo = sumSaldo;
         }
+
         public void setSumAksjehandel(int sumAksjehandel) {
             this.sumAksjehandel = sumAksjehandel;
         }

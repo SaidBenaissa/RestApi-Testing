@@ -1,50 +1,43 @@
 package no.skatteetaten.grunnlag.service;
 
-import no.skatteetaten.grunnlag.model.GrunnlagRequest;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
+import no.skatteetaten.grunnlag.model.GrunnlagRequest;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 class GrunnlagServiceTest {
-
     private final GrunnlagService grunnlagService = new GrunnlagService();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void testValiderGrunnlagValid() {
-        GrunnlagRequest request = new GrunnlagRequest();
-        List<GrunnlagRequest.Oppgave> oppgaver = new ArrayList<>();
-        GrunnlagRequest.Oppgave oppgave = new GrunnlagRequest.Oppgave();
-        oppgave.setSaldo(100);
-        oppgave.setAksjeandel(50);
-        oppgaver.add(oppgave);
-        request.setOppgave(oppgaver);
-
-        GrunnlagRequest.OppgaveOppsummering oppsummering = new GrunnlagRequest.OppgaveOppsummering();
-        oppsummering.setSumSaldo(100);
-        oppsummering.setSumAksjehandel(50);
-        request.setOppgaveoppsummering(oppsummering);
-
+    void testValiderGrunnlagValid() throws Exception {
+        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        GrunnlagRequest request = objectMapper.readValue(jsonContent, GrunnlagRequest.class);
         assertTrue(grunnlagService.validerGrunnlag(request));
     }
 
     @Test
-    void testValiderGrunnlagInvalid() {
+    void testValiderGrunnlagMalformed() throws Exception {
+        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/schema.json")));
+        try {
+            GrunnlagRequest request = objectMapper.readValue(jsonContent, GrunnlagRequest.class);
+            assertFalse(grunnlagService.validerGrunnlag(request));
+        } catch (Exception e) {
+            fail("Unexpected exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testValiderGrunnlagNullData() {
         GrunnlagRequest request = new GrunnlagRequest();
-        List<GrunnlagRequest.Oppgave> oppgaver = new ArrayList<>();
-        GrunnlagRequest.Oppgave oppgave = new GrunnlagRequest.Oppgave();
-        oppgave.setSaldo(100);
-        oppgave.setAksjeandel(50);
-        oppgaver.add(oppgave);
-        request.setOppgave(oppgaver);
-
-        GrunnlagRequest.OppgaveOppsummering oppsummering = new GrunnlagRequest.OppgaveOppsummering();
-        oppsummering.setSumSaldo(200);
-        oppsummering.setSumAksjehandel(100);
-        request.setOppgaveoppsummering(oppsummering);
-
         assertFalse(grunnlagService.validerGrunnlag(request));
     }
 }

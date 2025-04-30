@@ -1,9 +1,10 @@
 package no.skatteetaten.grunnlag.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,42 +31,20 @@ class GrunnlagRequestTest {
     }
 
     @Test
-    void testOppgaveOppsummering() {
-        GrunnlagRequest.OppgaveOppsummering oppsummering = new GrunnlagRequest.OppgaveOppsummering();
-        oppsummering.setSumSaldo(210);
-        oppsummering.setSumAksjehandel(410);
-
-        assertEquals(210, oppsummering.getSumSaldo());
-        assertEquals(410, oppsummering.getSumAksjehandel());
-    }
-
-    @Test
-    void testGrunnlagRequest() {
-        GrunnlagRequest request = new GrunnlagRequest();
-
-        GrunnlagRequest.Innsender innsender = new GrunnlagRequest.Innsender();
-        innsender.setNavn("Ole Olsen");
-        innsender.setFoedselsnummer("26063643458");
-        request.setInnsender(innsender);
-
-        List<GrunnlagRequest.Oppgave> oppgaver = new ArrayList<>();
-        GrunnlagRequest.Oppgave oppgave = new GrunnlagRequest.Oppgave();
-        oppgave.setSaldo(100);
-        oppgave.setAksjeandel(50);
-        oppgaver.add(oppgave);
-        request.setOppgave(oppgaver);
-
-        GrunnlagRequest.OppgaveOppsummering oppsummering = new GrunnlagRequest.OppgaveOppsummering();
-        oppsummering.setSumSaldo(100);
-        oppsummering.setSumAksjehandel(50);
-        request.setOppgaveoppsummering(oppsummering);
+    void testGrunnlagRequest() throws Exception {
+        String jsonContent = new String(Files.readAllBytes(Paths.get("src/test/resources/json/request.json")));
+        GrunnlagRequest request = new ObjectMapper().readValue(jsonContent, GrunnlagRequest.class);
 
         assertEquals("Ole Olsen", request.getInnsender().getNavn());
         assertEquals("26063643458", request.getInnsender().getFoedselsnummer());
-        assertEquals(1, request.getOppgave().size());
+        // Assertion: Expecting 2 elements in the oppgave list
+        assertEquals(2, request.getOppgave().size());
         assertEquals(100, request.getOppgave().get(0).getSaldo());
-        assertEquals(50, request.getOppgave().get(0).getAksjeandel());
-        assertEquals(100, request.getOppgaveoppsummering().getSumSaldo());
-        assertEquals(50, request.getOppgaveoppsummering().getSumAksjehandel());
+        // Assertion: Expecting aksjeandel to be 200 for the first element
+        assertEquals(200, request.getOppgave().get(0).getAksjeandel());
+        // Assertion: Expecting sumSaldo to be 210
+        assertEquals(210, request.getOppgaveoppsummering().getSumSaldo());
+        // Assertion: Expecting sumAksjehandel to be 410
+        assertEquals(410, request.getOppgaveoppsummering().getSumAksjehandel());
     }
 }

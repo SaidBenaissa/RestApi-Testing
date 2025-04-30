@@ -1,145 +1,49 @@
-# Hiring Process: Developer with Test Responsibility
+# REST API Assignment - Grunnlag
 
-## Code Task: Create a REST API with a Simple Service Structure and Focus on Testing
+This project implements a simple REST API as per the assessment requirements.
 
-### Scenario:
+## Functionality
 
-The Norwegian Tax Administration (Skatteetaten) works with systems that receive and process large amounts of data from external actors. We want you to develop a small REST API that simulates such a data flow.
+The API exposes a single endpoint:
 
-### Task:
+*   `POST /grunnlag`: Accepts a JSON payload representing `GrunnlagRequest` data. It validates if the sum of `saldo` and `aksjeandel` values within the `oppgave` list matches the `sumSaldo` and `sumAksjehandel` values provided in the `oppgaveoppsummering`.
+    *   Returns **HTTP 200 OK** with body "Gyldige data" if the sums match.
+    *   Returns **HTTP 400 Bad Request** with body "Ugyldige data" if the sums do not match or if the input data is invalid/malformed.
 
-Create a simple REST service consisting of:
-- A `POST /grunnlag` endpoint that receives JSON data.
-- The data should be forwarded to a service class for processing.
-- The functionality of the service is not important – but it should exist and be tested.
+## Running the Application
 
-### Requirements:
+1.  Clone the repository.
+2.  Ensure you have Java (version specified in `pom.xml`) and Maven installed.
+3.  Navigate to the project root directory.
+4.  Run the application using Maven:
+    ```bash
+    mvn spring-boot:run
+    ```
+5.  The API will be available at `http://localhost:8080/grunnlag`.
 
-- Java or Kotlin.
-- You are free to choose frameworks and testing frameworks.
-- It is expected that both the controller and service are tested.
-- If the sums for `saldo` and `aksjeandel` match `sumSaldo` and `sumAksjehandel` respectively, return status `200`, otherwise status `400`.
-- Otherwise, you are free to choose how to solve the task.
+## Testing Philosophy
 
-### Delivery:
+The testing strategy for this project aims for comprehensive coverage by combining unit and integration tests, focusing on verifying the core requirements of the assessment.
 
-- Source code in a Git repository (GitHub, GitLab, or similar).
-- A `README` file briefly describing your test philosophy:
-  - What you chose to test, how you did it, and why.
+### What Was Tested
 
-### How the Application Works
+1.  **Core Business Logic (Service Layer):** The primary focus was testing the `GrunnlagService.validerGrunnlag` method, which contains the critical validation logic comparing calculated sums against provided summary sums. Both valid (matching sums) and invalid (mismatched sums) scenarios were tested. Edge cases like null input or null values within the data structure were also considered.
+2.  **API Endpoint (Controller Layer):** The `GrunnlagController` was tested to ensure it correctly handles incoming `POST` requests to `/grunnlag`, deserializes the JSON payload, delegates to the `GrunnlagService`, and returns the appropriate HTTP status codes (200 OK for valid data, 400 Bad Request for invalid data based on the service's validation result). Tests also cover the handling of fundamentally malformed JSON input.
+3.  **Data Model (Model Layer):** Basic tests ensure the `GrunnlagRequest` model and its nested classes can be instantiated and correctly handle data, including deserialization from a valid JSON structure (`request.json`).
 
-1. **Client Request**: The client sends a `POST` request to the `/grunnlag` endpoint with a JSON payload containing data about the submitter, tasks, and task summary.
-2. **Controller**: The `GrunnlagController` receives the request and forwards the data to the `GrunnlagService` for processing.
-3. **Service Validation**: The `GrunnlagService` validates the data by checking if the sums of `saldo` and `aksjeandel` match `sumSaldo` and `sumAksjehandel` respectively.
-4. **Response**: Based on the validation result, the application returns:
-   - `200 OK` if the data is valid.
-   - `400 Bad Request` if the data is invalid.
+### How It Was Tested
 
-### Workflow Diagram
+1.  **Unit Tests (`GrunnlagServiceTest`):** The `GrunnlagService` was tested in isolation using plain JUnit tests. Test instances of `GrunnlagRequest` were created (often by deserializing JSON from files using Jackson's `ObjectMapper`) and passed to the `validerGrunnlag` method. Assertions (`assertTrue`, `assertFalse`) were used to verify the boolean result based on the input data (valid sums vs. invalid sums).
+2.  **Integration Tests (`GrunnlagControllerTest`, `GrunnlagApplicationTests`):** Spring Boot's testing support (`@SpringBootTest`, `@AutoConfigureMockMvc`) was used. `MockMvc` simulated HTTP requests to the `/grunnlag` endpoint.
+    *   Valid requests were sent using the content of `request.json`, expecting an HTTP 200 status.
+    *   Invalid requests (specifically testing the mismatched sums requirement) were sent using a dedicated JSON file (`invalid-sum-request.json` - *assuming this was created as suggested*) containing valid structure but incorrect summary values, expecting an HTTP 400 status.
+    *   Malformed requests were tested using `schema.json` (which is not a valid request payload) to ensure the controller/framework correctly returns HTTP 400 for parsing/validation errors.
+3.  **Test Data from Files:** Key test scenarios (valid request, invalid sums request, malformed request) load their input data from `.json` files located in `src/test/resources/json`. This keeps test code cleaner and separates test data from test logic.
 
-```mermaid
-graph TD
-    A[Client] -->|POST /grunnlag| B[GrunnlagController]
-    B --> C[GrunnlagService]
-    C -->|Validate Data| D[GrunnlagRequest Model]
-    C -->|Validation Result| E[Response to Client]
-```
+### Why This Approach
 
-### Model:
-#### JSON Example of Request:
-
-```json
-{
-  "innsender": {
-    "navn": "Ole Olsen",
-    "foedselsnummer": "26063643458"
-  },
-  "oppgave": [
-    {
-      "saldo": 100,
-      "aksjeandel": 200
-    },
-    {
-      "saldo": 110,
-      "aksjeandel": 210
-    }
-  ],
-  "oppgaveoppsummering": {
-    "sumSaldo": 210,
-    "sumAksjehandel": 410
-  }
-}
-```
-
-#### JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "innsender": {
-      "type": "object",
-      "properties": {
-        "navn": {
-          "type": "string"
-        },
-        "foedselsnummer": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "navn",
-        "foedselsnummer"
-      ]
-    },
-    "oppgave": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "saldo": {
-            "type": "integer"
-          },
-          "aksjeandel": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "saldo",
-          "aksjeandel"
-        ]
-      }
-    },
-    "oppgaveoppsummering": {
-      "type": "object",
-      "properties": {
-        "sumSaldo": {
-          "type": "integer"
-        },
-        "sumAksjehandel": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "sumSaldo",
-        "sumAksjehandel"
-      ]
-    }
-  },
-  "required": [
-    "innsender",
-    "oppgave",
-    "oppgaveoppsummering"
-  ]
-}
-```
-
-## Running Tests
-
-To run all tests (unit and integration):
-
-```bash
-mvn test
-```
+*   **Isolation:** Unit testing the service allows for focused verification of the core business logic without the overhead of the web framework, making tests faster and easier to debug.
+*   **Integration:** `MockMvc` tests for the controller ensure that the web layer is correctly configured, requests are routed properly, data binding works, the controller interacts correctly with the service, and the HTTP responses (status codes, body) are accurate according to the requirements.
+*   **Confidence:** Combining unit and integration tests provides higher confidence that the application works correctly end-to-end, from receiving an HTTP request to executing the business logic and returning the result.
+*   **Maintainability:** Using external files for test data makes it easier to manage and update test cases without modifying the test code itself.
+*   **Requirement Focused:** The tests directly address the assessment's core requirements: the existence of the endpoint, delegation to a service, the specific sum validation logic, and the corresponding 200/400 status code responses.
