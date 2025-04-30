@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "innsender": {
+      "type": "object",
+      "properties": {
+        "navn": {
+          "type": "string"
+        },
+        "foedselsnummer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "navn",
+        "foedselsnummer"
+      ]
+    },
+    "oppgave": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "saldo": {
+              "type": "integer"
+            },
+            "aksjeandel": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "saldo",
+            "aksjeandel"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "saldo": {
+              "type": "integer"
+            },
+            "aksjeandel": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "saldo",
+            "aksjeandel"
+          ]
+        }
+      ]
+    },
+    "oppgaveoppsummering": {
+      "type": "object",
+      "properties": {
+        "sumSaldo": {
+          "type": "integer"
+        },
+        "sumAksjehandel": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sumSaldo",
+        "sumAksjehandel"
+      ]
+    }
+  },
+  "required": [
+    "innsender",
+    "oppgave",
+    "oppgaveoppsummering"
+  ]
+}

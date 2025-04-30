@@ -1,0 +1,20 @@
+{
+  "innsender": {
+    "navn": "Ole Olsen",
+    "foedselsnummer": "26063643458"
+  },
+  "oppgave": [
+    {
+      "saldo": 100,
+      "aksjeandel": 200
+    },
+    {
+      "saldo": 110,
+      "aksjeandel": 210
+    }
+  ],
+  "oppgaveoppsummering": {
+    "sumSaldo": 210,
+    "sumAksjehandel": 410
+  }
+}

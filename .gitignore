@@ -1,23 +1,34 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Ignore build directories
+/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Ignore Maven-specific files
+.mvn/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# Ignore IDE-specific files
+.idea/
 *.iml
 *.ipr
-
-### VS Code ###
+*.iws
 .vscode/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.swo
+
+# Ignore compiled classes
+**/*.class
+
+# Ignore test reports
+surefire-reports/
+
+# Ignore generated files
+**/generated-sources/
+**/generated-test-sources/
