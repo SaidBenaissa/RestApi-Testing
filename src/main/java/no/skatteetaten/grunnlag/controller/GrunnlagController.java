@@ -4,12 +4,12 @@ import jakarta.validation.Valid;
 import no.skatteetaten.grunnlag.model.GrunnlagRequest;
 import no.skatteetaten.grunnlag.service.GrunnlagService;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/grunnlag")
@@ -27,7 +27,8 @@ public class GrunnlagController {
     @GetMapping("/api/schema")
     public ResponseEntity<String> getSchema() {
         try {
-            String schema = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("json/schema.json").toURI())));
+            ClassPathResource resource = new ClassPathResource("json/schema.json");
+            String schema = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             return ResponseEntity.ok(schema);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading schema.json");
@@ -37,7 +38,8 @@ public class GrunnlagController {
     @GetMapping("/api/request")
     public ResponseEntity<String> getRequest() {
         try {
-            String request = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("json/request.json").toURI())));
+            ClassPathResource resource = new ClassPathResource("json/request.json");
+            String request = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             return ResponseEntity.ok(request);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading request.json");
